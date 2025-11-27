@@ -1,5 +1,7 @@
 # CrawlAI
 
+<img width="1358" height="615" alt="image" src="https://github.com/user-attachments/assets/2d99e297-334c-4c22-a32e-fdd58f014ecc" />
+
 An intelligent chat application that combines web scraping capabilities with AI-powered responses. CrawlAI allows users to have conversations with an AI assistant that can scrape website content and analyze PDF documents to provide comprehensive, context-aware answers.
 
 ## Features
