@@ -5,28 +5,40 @@ import axios from 'axios';
 
 function ChatWindow() {
   const [messages, setMessages] = useState([
-    { sender: 'bot', text: '🤖 ¡Hola! Soy CrawlAI, un chatbot con capacidad de acceder al contenido de paginas web! Si quieres, pega una URL 🌐 y hazme una pregunta sobre su contenido, o hablemos normalmente! ¡Estoy listo para explorar! 🚀' }
+    { sender: 'bot', text: '🤖 Hello! I am CrawlAI, a chatbot with the ability to access web page content! If you want, paste a URL 🌐 and ask me a question about its content, or let\'s chat normally! I\'m ready to explore! 🚀' }
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
   let conversationHistory = { user: [], bot: [] };
 
   const handleSendMessage = async (userMessage, url, pdfFile) => {
-    const newUserMessage = { sender: 'user', text: userMessage };
+    const newUserMessage = { sender: 'user', text: userMessage + (url ? ` (URL: ${url})` : '') };
     setMessages(prevMessages => [...prevMessages, newUserMessage]);
     conversationHistory.user.push(userMessage);
 
     setIsLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-      const response = await axios.post(`${apiUrl}/api/chat`, { userMessage, url, history: conversationHistory, pdfFile });
+      // Crear FormData para enviar el archivo PDF
+      const formData = new FormData();
+      formData.append('userMessage', userMessage);
+      formData.append('url', url || '');
+      formData.append('history', JSON.stringify(conversationHistory));
+      if (pdfFile) {
+        formData.append('pdfFile', pdfFile);
+      }
+      
+      const response = await axios.post('/api/chat', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       const aiMessage = { sender: 'bot', text: response.data.aiResponse };
       setMessages(prevMessages => [...prevMessages, aiMessage]);
       conversationHistory.bot.push(response.data.aiResponse);
     } catch (error) {
-      console.error('Error al comunicarse con el servidor:', error);
-      const errorMessage = { sender: 'bot', text: '😔 Lo siento, hubo un error al procesar tu solicitud. Inténtalo de nuevo. 🔄' };
+      console.error('Error communicating with the server:', error);
+      const errorMessage = { sender: 'bot', text: '😔 Sorry, there was an error processing your request. Please try again. 🔄' };
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);

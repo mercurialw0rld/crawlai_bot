@@ -22,17 +22,17 @@ import React, { useState } from 'react';
         accept="application/pdf" />   
       <input
         type="text"
-        placeholder="URL del artículo..."
+        placeholder="Article URL..."
         value={url}
         onChange={(e) => setUrl(e.target.value)}
       />
       <input
         type="text"
-        placeholder="Escribe tu pregunta..."
+        placeholder="Type your question..."
         value={userMessage}
         onChange={(e) => setUserMessage(e.target.value)}
       />
-      <button type="submit">Enviar</button>
+      <button type="submit">Send</button>
     </form>
   );
 }

@@ -1,120 +1,126 @@
-# 🤖 CrawlAI - Intelligent Web Crawling Chatbot
+# CrawlAI
 
-<div align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
-  <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Google Gemini" />
-  <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
-</div>
+An intelligent chat application that combines web scraping capabilities with AI-powered responses. CrawlAI allows users to have conversations with an AI assistant that can scrape website content and analyze PDF documents to provide comprehensive, context-aware answers.
 
-## 🌟 Overview
+## Features
 
-**CrawlAI** is an intelligent chatbot powered by Google's Gemini AI that can crawl and analyze web content in real-time. Ask questions about any website's content and get instant, contextual responses. Whether you need to understand a webpage, extract information, or simply have a conversation, CrawlAI combines web crawling capabilities with advanced AI to provide comprehensive answers.
+- **Web Scraping**: Automatically scrape and analyze website content for enhanced responses
+- **PDF Analysis**: Upload and analyze PDF documents with AI assistance
+- **Conversational AI**: Powered by Google Gemini for detailed, friendly responses
+- **Caching**: Intelligent caching of scraped content for improved performance
+- **Modern UI**: Clean, responsive React interface with real-time chat
 
-## ✨ Features
-
-### 🚀 Core Functionality
-- **Real-time Web Crawling**: Instantly access and analyze content from any URL
-- **AI-Powered Responses**: Leverages Google Gemini for intelligent, contextual answers
-- **Interactive Chat Interface**: Modern, responsive UI with dark theme
-- **Multi-format Support**: Handles various web content types and structures
-
-### 🎨 User Experience
-- **Beautiful Dark Theme**: GitHub-inspired design with smooth animations
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Real-time Loading States**: Visual feedback during content processing
-- **Emoji-rich Interface**: Engaging visual elements throughout the chat
-
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React 19** - Modern React with hooks and concurrent features
-- **Vite** - Fast build tool and development server
-- **Axios** - HTTP client for API communication
-- **React Markdown** - Rich text rendering for AI responses
-- **CSS3** - Custom styling with animations and responsive design
+- React 19
+- Vite
+- Axios for API calls
+- React Markdown for rich text rendering
 
 ### Backend
-- **Node.js** - JavaScript runtime environment
-- **Express.js** - Web application framework
-- **Google Gemini AI** - Advanced language model for responses
-- **Axios** - HTTP client for web crawling
-- **CORS** - Cross-origin resource sharing middleware
+- Node.js with Express
+- Google Generative AI (Gemini)
+- Firecrawl for web scraping
+- Multer for file uploads
+- PostgreSQL database
+- CORS enabled
 
-## 📋 Prerequisites
+## Prerequisites
 
-Before running this application, make sure you have the following installed:
+- Node.js (v16 or higher)
+- npm or yarn
+- API keys for:
+  - Google Gemini AI
+  - Firecrawl
 
-- **Node.js** (v16 or higher)
-- **npm** or **yarn** package manager
-- **Google Gemini API Key** (get one from [Google AI Studio](https://makersuite.google.com/app/apikey))
+## Installation
 
-
-## 💬 Usage
-
-### Basic Chat
-1. Open the application in your browser
-2. Start chatting normally with CrawlAI
-3. The AI will respond to your messages conversationally
-
-### Web Content Analysis
-1. Copy and paste any URL into the URL input field
-2. Ask questions about the webpage content in the message field
-3. CrawlAI will crawl the website and provide contextual answers
-
-### Example Interactions
-```
-User: What are the main features of React?
-CrawlAI: React is a JavaScript library for building user interfaces...
-
-User: URL: https://react.dev/learn
-Question: How does the useState hook work?
-CrawlAI: Based on the React documentation, the useState hook...
+1. Clone the repository:
+```bash
+git clone https://github.com/mercurialw0rld/CrawlAI.git
+cd CrawlAI
 ```
 
+2. Install server dependencies:
+```bash
+cd server
+npm install
+```
 
-## 🤝 Contributing
+3. Install client dependencies:
+```bash
+cd ../client
+npm install
+```
 
-We welcome contributions! Please follow these steps:
+4. Set up environment variables:
+Create a `.env` file in the `server` directory with:
+```
+FIRECRAWL_API_KEY=your_firecrawl_api_key
+GEMINI_API_KEY=your_gemini_api_key
+PORT=5000
+```
+
+## Usage
+
+1. Start the server:
+```bash
+cd server
+npm start
+# or for development with auto-reload:
+npm run dev
+```
+
+2. Start the client (in a new terminal):
+```bash
+cd client
+npm run dev
+```
+
+3. Open your browser to `http://localhost:5173`
+
+## API Endpoints
+
+### POST /api/chat
+Main chat endpoint that accepts:
+- `userMessage`: The user's message (required)
+- `url`: Optional URL to scrape for context
+- `history`: JSON string of conversation history
+- `pdfFile`: Optional PDF file upload
+
+## Project Structure
+
+```
+crawlai/
+├── client/                 # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── chatwindow.jsx
+│   │   │   ├── inputbar.jsx
+│   │   │   └── messagelist.jsx
+│   │   └── ...
+│   ├── package.json
+│   └── vite.config.js
+├── server/                 # Node.js backend
+│   ├── index.js
+│   ├── package.json
+│   └── uploads/            # File upload directory
+└── README.md
+```
+
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Guidelines
-- Follow the existing code style
-- Add tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting
+## License
 
-## 📝 License
+This project is licensed under the ISC License.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Author
 
-## 🙏 Acknowledgments
-
-- **Google Gemini AI** for powering the intelligent responses
-- **React Community** for the amazing frontend framework
-- **Vite** for the lightning-fast development experience
-- **GitHub** for inspiration on the dark theme design
-
-## 📞 Contact
-
-**CrawlAI** - [@mercurialw0rld](https://github.com/mercurialw0rld)
-
-Project Link: [https://github.com/mercurialw0rld/crawlai](https://github.com/mercurialw0rld/crawlai)
-
----
-
-<div align="center">
-  <p>Made with ❤️ by <a href="https://github.com/mercurialw0rld">mercurialw0rld</a></p>
-  <p>
-    <a href="#-crawlai---intelligent-web-crawling-chatbot">Back to Top</a>
-  </p>
-</div></content>
-<parameter name="filePath">README.md
+Created with ❤️ by [@mercurialw0rld](https://github.com/mercurialw0rld)

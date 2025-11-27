@@ -1,4 +1,4 @@
-// importar dependencias
+// import dependencies
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -6,11 +6,11 @@ const fs = require('fs');
 require('dotenv').config();
 const { Firecrawl } = require('@mendable/firecrawl-js');
 const { GoogleGenAI } = require('@google/genai');
-let crawledPages = {};
+crawledPages = {};
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// crear una instancia de express
+
 const app = express();
 // middleware para parsear JSON
 app.use(express.json());
@@ -23,102 +23,103 @@ const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 // definir un puerto
 const PORT = process.env.PORT || 5000;
 app.get('/', (req, res) => {
-  res.send('Hola, mundo!');
+  res.send('Hello, world!');
 });
 
-// recibir datos en una ruta POST
-app.post('/api/chat', async (req, res) => {
+// receive data in a POST route
+app.post('/api/chat', upload.single('pdfFile'), async (req, res) => {
     try {
         let context = '';
-        let pdfBase64;
-        const { userMessage, url, history } = req.body;
-
-        if (req.file) {
+        let pdfBase64 = null;
+        const { userMessage, url} = req.body;
+        const history = req.body.history ? JSON.parse(req.body.history) : { user: [], bot: [] };
+        // convert pdf to base64 if it exists
+        if (req.file){
+            console.log('PDF file received:', req.file.originalname);
             pdfBase64 = req.file.buffer.toString('base64');
         }
-
-        console.log('Cuerpo de la solicitud:', req.body);
-
-        if (!userMessage) {
-            return res.status(400).json({ error: 'Debes dejar un mensaje, es obligatorio.' });
+        
+        console.log('Request body:', req.body);
+        // validate that userMessage is present
+        if(!userMessage) {
+            return res.status(400).json({ error: 'You must provide a message, it is required.' });
         }
-
+        // if there is url, scrape it
         if (url && url.trim() !== '') {
+            // check if we haven't scraped it before
             if (crawledPages[url]) {
-                console.log('Usando contenido en caché para la URL:', url);
+                console.log('Using cached content for URL:', url);
                 context = crawledPages[url];
             } else {
-                console.log('No se encontró contenido en caché para la URL:', url);
+                console.log('No cached content found for URL:', url);
                 const crawlResponse = await firecrawl.crawl(url, {
                     limit: 100,
                     scrapeOptions: { formats: ['markdown', 'html'], onlyMainContent: true },
                 });
-                console.log('Scraping completado!!!!');
-                console.log('Respuesta del crawl:', JSON.stringify(crawlResponse, null, 2));
-
-                if (crawlResponse.data && crawlResponse.data.length > 0) {
-                    context = crawlResponse.data
-                        .map(
-                            (page) =>
-                                `URL: ${page.url}\nContenido: ${page.content || page.markdown}\n---\n`
-                        )
-                        .join('');
-                    console.log('Contenido scrapeado:', context);
+                console.log('Scraping completed!!!!');
+                console.log('Crawl response:', JSON.stringify(crawlResponse, null, 2));
+                
+                // get the scraped content
+            if (crawlResponse.data && crawlResponse.data.length > 0) {
+                    context = crawlResponse.data.map(page => 
+                        `URL: ${page.url}\nContent: ${page.content || page.markdown}\n---\n`
+                    ).join('');
+                    console.log('Scraped content:', context);
+                    // store in cache
                     crawledPages[url] = context;
                 } else {
-                    return res.json({ message: 'No se pudo scrapear contenido de la URL proporcionada.' });
+                    return res.json({ message: 'Could not scrape content from the provided URL.' });
                 }
+    }
             }
-        }
 
-        const prompt = `Basándote en el siguiente contexto, responde la pregunta del usuario.
-
-                        CONTEXTO:
-                        ---
-                        ${context}, DEBES SER COMPLETO AL RESPONDER, no des respuestas concisas o cortas, debes ser explicativo y detallado. Debes ser sumamente amigable y paciente!
-                        ---
-                        HISTORIAL DE CONVERSACIÓN:
-                        ---
-                        Usuario: ${history.user.join('\nUsuario: ')}
-                        Bot: ${history.bot.join('\nBot: ')}
-                        ---
-                        PREGUNTA: ${userMessage}`;
+        // generate response with Gemini
+        const prompt = `Based on the following context, answer the user's question.
+    
+            CONTEXT:
+            ---
+            ${context}, BE COMPLETE IN YOUR RESPONSE, do not give concise or short answers, you must be explanatory and detailed. You must be extremely friendly and patient!${context ? ` If a URL was provided and content was scraped, start your response with "Successfully scraped ${url}" followed by the detailed answer.` : ''}
+            ---
+            CONVERSATION HISTORY:
+            ---
+            User: ${history.user.join('\nUser: ')}
+            Bot: ${history.bot.join('\nBot: ')}
+            ---
+            QUESTION: ${userMessage}`;
 
         if (pdfBase64) {
+            console.log('Generating response with attached PDF...');
             const contents = [
-                { text: userMessage },
+                { text: prompt },
                 {
                     inlineData: {
+                        // Use the mimetype detected by multer
                         mimeType: req.file.mimetype,
-                        data: pdfBase64,
-                    },
-                },
+                        // Convert the file buffer (req.file.buffer) to Base64
+                        data: pdfBase64
+                    }
+                }
             ];
-            const response = await genAI.models.generateContent({
-                model: 'gemini-2.0-flash',
-                contents,
-                config: {
-                    systemInstruction: `${prompt}`,
-                },
+            let response = await genAI.models.generateContent({
+                model: "gemini-2.0-flash",
+                contents: contents,
+            });
+            return res.json({ aiResponse: response.text });
+        } else {
+            let response = await genAI.models.generateContent({
+                model: "gemini-2.0-flash",
+                contents: [{ text: prompt }],
             });
             return res.json({ aiResponse: response.text });
         }
 
-        const response = await genAI.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: `${userMessage}`,
-            config: {
-                systemInstruction: `${prompt}`,
-            },
-        });
-        return res.json({ aiResponse: response.text });
     } catch (error) {
-        console.error('Error al procesar la solicitud:', error);
-        return res.status(500).json({ error: 'Error interno del servidor.' });
+        console.error('Error processing the request:', error);
+        return res.status(500).json({ error: 'Internal server error.' });
     }
 });
 
-// iniciar el servidor
+// start the server
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT}`);
 });

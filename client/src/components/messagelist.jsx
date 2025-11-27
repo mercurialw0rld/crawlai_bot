@@ -16,7 +16,7 @@ function MessageList({ messages, isLoading }) { // Recibimos messages y isLoadin
       {/* Mostramos un indicador de carga si isLoading es true */}
       {isLoading && (
         <div className="message bot loading">
-          <p>🤔 Procesando tu solicitud... 🔍</p>
+          <p>🤔 Let me think, please wait... 🔍</p>
         </div>
       )}
     </div>
