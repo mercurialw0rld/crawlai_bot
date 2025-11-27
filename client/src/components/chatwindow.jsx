@@ -27,7 +27,7 @@ function ChatWindow() {
         formData.append('pdfFile', pdfFile);
       }
       
-      const response = await axios.post('/api/chat', formData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/chat`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
