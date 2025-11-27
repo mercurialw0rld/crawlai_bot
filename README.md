@@ -12,6 +12,10 @@ An intelligent chat application that combines web scraping capabilities with AI-
 - **Caching**: Intelligent caching of scraped content for improved performance
 - **Modern UI**: Clean, responsive React interface with real-time chat
 
+## URL
+
+https://crawlai-bot.vercel.app/
+
 ## Tech Stack
 
 ### Frontend
